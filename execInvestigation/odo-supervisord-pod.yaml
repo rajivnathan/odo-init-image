@@ -1,0 +1,219 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    alpha.image.policy.openshift.io/resolve-names: '*'
+    openshift.io/deployment-config.latest-version: "1"
+    openshift.io/deployment-config.name: nodejs-nodejs-ex-qnxf-app
+    openshift.io/deployment.name: nodejs-nodejs-ex-qnxf-app-1
+    openshift.io/scc: anyuid
+  creationTimestamp: 2020-03-09T03:04:49Z
+  generateName: nodejs-nodejs-ex-qnxf-app-1-
+  labels:
+    deployment: nodejs-nodejs-ex-qnxf-app-1
+    deploymentconfig: nodejs-nodejs-ex-qnxf-app
+  name: nodejs-nodejs-ex-qnxf-app-1-kzkh6
+  namespace: odo
+  ownerReferences:
+  - apiVersion: v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicationController
+    name: nodejs-nodejs-ex-qnxf-app-1
+    uid: bb77b312-61b2-11ea-ab06-00000a1f025e
+  resourceVersion: "61933261"
+  selfLink: /api/v1/namespaces/odo/pods/nodejs-nodejs-ex-qnxf-app-1-kzkh6
+  uid: bd23496d-61b2-11ea-ab06-00000a1f025e
+spec:
+  containers:
+  - args:
+    - -pre
+    - /opt/odo/bin/s2i-setup
+    - -main
+    - /opt/odo/bin/supervisord -c /opt/app-root/conf/supervisor.conf
+    command:
+    - /opt/odo/bin/go-init
+    env:
+    - name: DEBUG_PORT
+      value: "5858"
+    - name: ODO_S2I_SCRIPTS_URL
+      value: /usr/libexec/s2i
+    - name: ODO_S2I_SCRIPTS_PROTOCOL
+      value: image://
+    - name: ODO_S2I_SRC_BIN_PATH
+      value: /tmp
+    - name: ODO_S2I_DEPLOYMENT_DIR
+      value: /opt/app-root/src
+    - name: ODO_S2I_WORKING_DIR
+      value: /opt/app-root/src
+    - name: ODO_S2I_BUILDER_IMG
+      value: bucharestgold/centos7-s2i-nodejs
+    - name: ODO_SRC_BACKUP_DIR
+      value: /opt/app-root/src-backup
+    image: docker-registry.default.svc:5000/openshift/nodejs@sha256:3cc041334eef8d5853078a0190e46a2998a70ad98320db512968f1de0561705e
+    imagePullPolicy: IfNotPresent
+    name: nodejs-nodejs-ex-qnxf-app
+    ports:
+    - containerPort: 8080
+      name: 8080-tcp
+      protocol: TCP
+    resources: {}
+    securityContext:
+      capabilities:
+        drop:
+        - MKNOD
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /opt/odo/
+      name: odo-supervisord-shared-data
+    - mountPath: /opt/app-root
+      name: nodejs-nodejs-ex-qnxf-app-s2idata
+      subPath: app-root
+    - mountPath: /root/rajiv
+      name: rajivstorage-app-pvc-xmdpm-volume
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: default-token-g87lw
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  imagePullSecrets:
+  - name: default-dockercfg-7rv24
+  initContainers:
+  - args:
+    - "\nSRC=/opt/app-root\nDEST=/mnt/app-root\n\nif [ -f $DEST/.delete-volume ];
+      then\n    rm -rf $DEST\nfi\n if [ -d $DEST ]; then\n    if [ -f $DEST/.sync-volume
+      ]; then\n        if ! [[ \"$JUPYTER_SYNC_VOLUME\" =~ ^(false|no|n|0)$ ]]; then\n
+      \           JUPYTER_SYNC_VOLUME=yes\n        fi\n    fi\n     if [[ \"$JUPYTER_SYNC_VOLUME\"
+      =~ ^(true|yes|y|1)$ ]]; then\n        rsync -ar --ignore-existing $SRC/. $DEST\n
+      \   fi\n     exit\nfi\n if [ -d $DEST.setup-volume ]; then\n    rm -rf $DEST.setup-volume\nfi\n\nmkdir
+      -p $DEST.setup-volume\ntar -C $SRC -cf - . | tar -C $DEST.setup-volume -xvf
+      -\nmv $DEST.setup-volume $DEST\n\t\t\t"
+    command:
+    - sh
+    - -c
+    image: docker-registry.default.svc:5000/openshift/nodejs@sha256:3cc041334eef8d5853078a0190e46a2998a70ad98320db512968f1de0561705e
+    imagePullPolicy: IfNotPresent
+    name: copy-files-to-volume
+    resources: {}
+    securityContext:
+      capabilities:
+        drop:
+        - MKNOD
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /mnt
+      name: nodejs-nodejs-ex-qnxf-app-s2idata
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: default-token-g87lw
+      readOnly: true
+  - args:
+    - -r
+    - /opt/odo-init/.
+    - /opt/odo/
+    command:
+    - /usr/bin/cp
+    image: registry.access.redhat.com/openshiftdo/odo-init-image-rhel7:1.0.2
+    imagePullPolicy: IfNotPresent
+    name: copy-supervisord
+    resources: {}
+    securityContext:
+      capabilities:
+        drop:
+        - MKNOD
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /opt/odo/
+      name: odo-supervisord-shared-data
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: default-token-g87lw
+      readOnly: true
+  nodeName: rajivokd-worker-1.fyre.ibm.com
+  nodeSelector:
+    node-role.kubernetes.io/compute: "true"
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext:
+    seLinuxOptions:
+      level: s0:c26,c25
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  volumes:
+  - emptyDir: {}
+    name: odo-supervisord-shared-data
+  - name: nodejs-nodejs-ex-qnxf-app-s2idata
+    persistentVolumeClaim:
+      claimName: nodejs-nodejs-ex-qnxf-app-s2idata
+  - name: rajivstorage-app-pvc-xmdpm-volume
+    persistentVolumeClaim:
+      claimName: rajivstorage-app-pvc
+  - name: default-token-g87lw
+    secret:
+      defaultMode: 420
+      secretName: default-token-g87lw
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: 2020-03-09T03:04:57Z
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: 2020-03-09T03:04:58Z
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: null
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: 2020-03-09T03:04:49Z
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://f3b0b887c10ba836c17366b7c6f6e62a8f7e8768eacb7a10bbbecafac33e457c
+    image: sha256:93de1230c12b512ebbaf28b159f450a44c632eda06bdc0754236f403f5876234
+    imageID: docker-pullable://docker-registry.default.svc:5000/openshift/nodejs@sha256:3cc041334eef8d5853078a0190e46a2998a70ad98320db512968f1de0561705e
+    lastState: {}
+    name: nodejs-nodejs-ex-qnxf-app
+    ready: true
+    restartCount: 0
+    state:
+      running:
+        startedAt: 2020-03-09T03:04:58Z
+  hostIP: 9.26.136.199
+  initContainerStatuses:
+  - containerID: docker://48e7f2e3394950273e97119874697533afa6af5749ca264986b3c6a139261a61
+    image: sha256:93de1230c12b512ebbaf28b159f450a44c632eda06bdc0754236f403f5876234
+    imageID: docker-pullable://docker-registry.default.svc:5000/openshift/nodejs@sha256:3cc041334eef8d5853078a0190e46a2998a70ad98320db512968f1de0561705e
+    lastState: {}
+    name: copy-files-to-volume
+    ready: true
+    restartCount: 0
+    state:
+      terminated:
+        containerID: docker://48e7f2e3394950273e97119874697533afa6af5749ca264986b3c6a139261a61
+        exitCode: 0
+        finishedAt: 2020-03-09T03:04:55Z
+        reason: Completed
+        startedAt: 2020-03-09T03:04:51Z
+  - containerID: docker://b3f2627202149f2b0349c6289df82113ed247191c870a466999f906dcd49e02c
+    image: registry.access.redhat.com/openshiftdo/odo-init-image-rhel7:1.0.2
+    imageID: docker-pullable://registry.access.redhat.com/openshiftdo/odo-init-image-rhel7@sha256:7103717ba389b20d026640d845d0fb1f52ee3cda45fa5faa25537aa7dc53fb6c
+    lastState: {}
+    name: copy-supervisord
+    ready: true
+    restartCount: 0
+    state:
+      terminated:
+        containerID: docker://b3f2627202149f2b0349c6289df82113ed247191c870a466999f906dcd49e02c
+        exitCode: 0
+        finishedAt: 2020-03-09T03:04:56Z
+        reason: Completed
+        startedAt: 2020-03-09T03:04:56Z
+  phase: Running
+  podIP: 10.130.0.11
+  qosClass: BestEffort
+  startTime: 2020-03-09T03:04:49Z
