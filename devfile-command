@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -x
+set -e
+
+if [ -z "$ODO_RUN_COMMAND" ]; then
+    echo "ODO_RUN_COMMAND is not set";
+else
+    echo "ODO_RUN_COMMAND is $ODO_RUN_COMMAND";
+    if [ -n $ODO_RUN_COMMAND_WORKING_DIR ]; then
+        echo "Changing directory to $ODO_RUN_COMMAND_WORKING_DIR";
+        cd $ODO_RUN_COMMAND_WORKING_DIR
+    fi
+    sh -c "$ODO_RUN_COMMAND"
+fi
