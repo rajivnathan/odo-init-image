@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    component: openlibertydevfile
+  name: openlibertydevfile
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: openlibertydevfile
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        component: openlibertydevfile
+      name: openlibertydevfile
+    spec:
+      initContainers:
+      - args:
+        - -r
+        - /opt/odo-init/.
+        - /opt/odo/
+        command:
+        - /usr/bin/cp
+        image: jeevandroid/odo-init-image
+        imagePullPolicy: Always
+        name: copy-supervisord
+        resources: {}
+        securityContext:
+          capabilities:
+            drop:
+            - MKNOD
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /opt/odo/
+          name: odo-supervisord-shared-data
+      containers:
+      - env:
+        - name: ODO_COMMAND_RUN
+          value: "/artifacts/bin/run.sh"
+        args:
+        - -c
+        - "/opt/odo/bin/supervisord -c /opt/odo/conf/devfile-supervisor.conf"
+        command:
+        - /bin/sh
+        image: jeevandroid/open-liberty-dev:latest
+        imagePullPolicy: Always
+        name: devruntime
+        resources:
+          limits:
+            memory: 768Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /opt/odo
+          name: odo-supervisord-shared-data
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      volumes:
+      - name: odo-supervisord-shared-data
+        emptyDir: {}

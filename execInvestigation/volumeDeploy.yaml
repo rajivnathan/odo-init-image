@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    component: openlibertydevfile
+  name: openlibertydevfile
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: openlibertydevfile
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        component: openlibertydevfile
+      name: openlibertydevfile
+    spec:
+      containers:
+      - command:
+        - tail
+        - -f
+        - /dev/null
+        image: jeevandroid/open-liberty-dev:latest
+        imagePullPolicy: Always
+        name: devruntime
+        resources:
+          limits:
+            memory: 768Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /home/user/.m2
+          name: m2-openlibertydevfile-volume
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 1000700001
+        runAsUser: 1000700000
+      volumes:
+      - name: m2-openlibertydevfile-volume
+        persistentVolumeClaim:
+          claimName: m2-openlibertydevfile
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    component: openlibertydevfile
+    storage-name: m2
+  name: m2-openlibertydevfile
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: volume6
